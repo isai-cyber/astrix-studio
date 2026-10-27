@@ -126,6 +126,10 @@ scripts/   build-samples.mjs (índice opcional de ejemplos de una instalación p
 - [Cuentas, UTM, voz, clonación y privacidad](docs/CUENTAS_UTM_Y_PRIVACIDAD.md)
 - [Notas de interoperabilidad del formato `.moho`](docs/INGENIERIA_INVERSA.md)
 
+## Licencia
+
+[MIT](LICENSE) © 2026 Armando Isai Mercado Esquivel. El logo de Astrix Studio no está incluido en la licencia MIT: es una marca del proyecto.
+
 ## Aviso
 
 Astrix Studio es un proyecto independiente. **No está afiliado ni respaldado por Smith Micro Software ni por Lost Marble.** "Moho" es una marca de sus respectivos dueños. Este repositorio no incluye código, ejecutables ni recursos de Moho. La compatibilidad con archivos `.moho` se basa en el estudio del formato de archivo con fines de interoperabilidad.
