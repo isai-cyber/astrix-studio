@@ -1,0 +1,13 @@
+{
+  "name": "moho-web-server",
+  "private": true,
+  "type": "module",
+  "description": "Backend local de Moho Web: sirve la app y conecta Claude Code, Claude API y fal.ai",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.3.0",
+    "mariadb": "^3.5.4"
+  }
+}

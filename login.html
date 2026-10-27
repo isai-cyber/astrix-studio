@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrar — Astrix Studio</title>
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="style.css">
+<style>
+  body { display: grid; place-items: center; grid-template-rows: 1fr; padding: 16px; overflow: auto; }
+  .auth { width: min(400px, 100%); padding: 30px 28px 26px; text-align: center; }
+  .auth .logo { width: 84px; height: 84px; border-radius: 22px; filter: drop-shadow(0 0 26px rgba(139,92,246,.7)) drop-shadow(0 0 50px rgba(236,72,153,.35)); animation: float 6s ease-in-out infinite; }
+  .auth h1 { margin: 14px 0 2px; font-size: 24px; font-weight: 800; }
+  .auth p { margin: 0 0 22px; color: var(--dim); }
+  .auth form { display: grid; gap: 12px; text-align: left; }
+  .auth label { display: grid; gap: 6px; color: var(--dim); font-size: 12px; }
+  .auth input { width: 100%; padding: 11px 12px; font-size: 14px; border-radius: 12px; }
+  .auth button[type=submit] { padding: 12px; font-size: 15px; border-radius: 12px; margin-top: 4px; }
+  .auth .err { min-height: 18px; color: #ff9fb8; font-size: 12px; text-align: center; }
+  .auth .foot { margin-top: 16px; font-size: 11px; color: var(--faint); }
+  #changeForm { display: none; }
+</style>
+</head>
+<body>
+  <div class="auth glass">
+    <img class="logo" src="assets/logo-256.png" alt="">
+    <h1>Astrix <span class="grad">Studio</span></h1>
+    <p id="subtitle">Inicia sesión en tu estudio</p>
+
+    <form id="loginForm" autocomplete="on">
+      <label>Correo<input id="email" type="email" autocomplete="username" required></label>
+      <label>Contraseña<input id="password" type="password" autocomplete="current-password" required></label>
+      <button type="submit" class="primary">Entrar</button>
+      <div class="err" id="err"></div>
+    </form>
+
+    <form id="changeForm">
+      <label>Contraseña actual<input id="cur" type="password" autocomplete="current-password" required></label>
+      <label>Nueva contraseña (mín. 10 caracteres)<input id="next" type="password" autocomplete="new-password" minlength="10" required></label>
+      <label>Repite la nueva contraseña<input id="next2" type="password" autocomplete="new-password" minlength="10" required></label>
+      <button type="submit" class="primary">Guardar y entrar</button>
+      <div class="err" id="err2"></div>
+    </form>
+    <div class="foot">Tus archivos nunca se suben al servidor: se quedan en tu equipo.</div>
+  </div>
+<script>
+const H = { 'content-type': 'application/json', 'x-moho-web': '1' };
+const $ = (id) => document.getElementById(id);
+const next = new URLSearchParams(location.search).get('next') || '/';
+const go = () => location.replace(next.startsWith('/') && !next.startsWith('//') ? next : '/');
+function showChange() {
+  $('loginForm').style.display = 'none'; $('changeForm').style.display = 'grid';
+  $('subtitle').textContent = 'Por seguridad, crea tu propia contraseña';
+  $('cur').focus();
+}
+fetch('/api/auth/me', { headers: H }).then((r) => r.json()).then((j) => {
+  if (j.user?.mustChangePassword) showChange(); else if (j.user) go();
+}).catch(() => {});
+$('loginForm').onsubmit = async (e) => {
+  e.preventDefault(); $('err').textContent = '';
+  const r = await fetch('/api/auth/login', { method: 'POST', headers: H, body: JSON.stringify({ email: $('email').value, password: $('password').value }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { $('err').textContent = j.error || 'No se pudo iniciar sesión'; return; }
+  if (j.user.mustChangePassword) { $('cur').value = $('password').value; showChange(); $('next').focus(); } else go();
+};
+$('changeForm').onsubmit = async (e) => {
+  e.preventDefault(); $('err2').textContent = '';
+  if ($('next').value !== $('next2').value) { $('err2').textContent = 'Las contraseñas no coinciden'; return; }
+  const r = await fetch('/api/auth/password', { method: 'POST', headers: H, body: JSON.stringify({ current: $('cur').value, next: $('next').value }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { $('err2').textContent = j.error || 'No se pudo cambiar'; return; }
+  go();
+};
+</script>
+</body>
+</html>

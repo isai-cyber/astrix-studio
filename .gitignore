@@ -1,0 +1,21 @@
+# Dependencias
+node_modules/
+
+# Secretos y credenciales locales — nunca al repositorio
+server/.env
+server/CREDENCIALES_ADMIN.txt
+*.pem
+*.key
+
+# Índice local de ejemplos generado desde una instalación propia de Moho (no se distribuye)
+samples.json
+
+# Metadatos de macOS / discos FAT
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Registros y temporales
+*.log
+tmp/

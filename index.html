@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Astrix Studio</title>
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-pending">
+<header id="topbar" class="glass">
+  <div class="brand">
+    <img src="assets/logo-256.png" alt="">
+    <div class="brandText"><span class="name">Astrix</span><span class="tag">Studio</span></div>
+  </div>
+
+  <nav class="menus">
+    <div class="menu">
+      <button class="ghost" data-icon="folder">Archivo <i data-icon="chevronDown" data-size="14"></i></button>
+      <div class="dropdown glass">
+        <button id="btnNew" data-icon="filePlus">Nuevo proyecto <kbd>⌘N</kbd></button>
+        <label class="item" data-icon="folderOpen">Abrir .moho…<input id="fileInput" type="file" accept=".moho,.mohoproj,.json" hidden></label>
+        <label class="item" data-icon="upload">Importar medios…<input id="importInput" type="file" multiple accept="image/*,video/*,audio/*,.svg,.mov,.mp4,.webm,.wav,.mp3" hidden></label>
+        <hr>
+        <button id="btnSave" data-icon="save">Guardar .moho <kbd>⌘S</kbd></button>
+      </div>
+    </div>
+    <div class="menu">
+      <button class="ghost" data-icon="download">Exportar <i data-icon="chevronDown" data-size="14"></i></button>
+      <div class="dropdown glass">
+        <button id="btnVideo" data-icon="film">Video MP4 con audio</button>
+        <button id="btnPng" data-icon="image">Imagen PNG del frame</button>
+        <button id="btnSvg" data-icon="vector">Vector SVG del frame</button>
+      </div>
+    </div>
+    <select id="sampleSelect" class="ghost" title="Ejemplos incluidos con Moho"><option value="">Ejemplos…</option></select>
+  </nav>
+
+  <div class="docTitle"><span id="docTitle">Sin proyecto</span></div>
+
+  <div class="actions">
+    <div class="segmented" id="fmtSwitch" title="Formato del proyecto">
+      <button data-fmt="h" data-icon="monitor" data-size="15" title="Horizontal 16:9 · YouTube">Horizontal</button>
+      <button data-fmt="v" data-icon="phone" data-size="15" title="Corto vertical 9:16 · TikTok, Reels, Shorts">Corto</button>
+    </div>
+    <button id="btnUndo" class="icon ghost" data-icon="undo" title="Deshacer (⌘Z)"></button>
+    <button id="btnRedo" class="icon ghost" data-icon="redo" title="Rehacer (⇧⌘Z)"></button>
+    <button id="btnResearch" class="pill" data-icon="sliders" title="Investigar contenido viral en TikTok, Reels, Facebook y YouTube (I)">Investigar</button>
+    <button id="btnUtm" class="pill" data-icon="chart" title="Medir videos orgánicos con enlaces UTM (U)">Medir</button>
+    <button id="btnAI" class="pill primary" data-icon="sparkles" title="Generar con IA (G)">Generar IA</button>
+    <div id="accountSlot"></div>
+  </div>
+</header>
+
+<main>
+  <nav id="toolbox" class="glass">
+    <button data-tool="points" data-icon="pointer" data-tip="Seleccionar puntos · T"></button>
+    <button data-tool="layer" data-icon="move" data-tip="Transformar capa · M"></button>
+    <span class="sep"></span>
+    <button data-tool="pen" data-icon="pen" data-tip="Pluma · P"></button>
+    <button data-tool="pencil" data-icon="pencil" data-tip="Lápiz · N"></button>
+    <button data-tool="rect" data-icon="square" data-tip="Rectángulo · R"></button>
+    <button data-tool="ellipse" data-icon="circle" data-tip="Elipse · E"></button>
+    <span class="sep"></span>
+    <button data-tool="bone" data-icon="bone" data-tip="Huesos · Z (Shift mueve)"></button>
+    <button data-tool="addbone" data-icon="bonePlus" data-tip="Añadir hueso · A"></button>
+    <span class="sep"></span>
+    <button data-tool="pan" data-icon="hand" data-tip="Mover vista · H / espacio"></button>
+    <span class="grow"></span>
+    <div class="swatches" data-tip="Relleno y trazo para formas nuevas">
+      <input type="color" id="fillColor" value="#8b5cf6">
+      <input type="color" id="lineColor" value="#0b0b24">
+    </div>
+    <input type="number" id="strokePx" value="4" min="0" step="0.5" data-tip="Grosor del trazo (px)">
+  </nav>
+
+  <aside id="layersPanel" class="glass">
+    <div class="panelHead">
+      <span data-icon="layers">Capas</span>
+      <span class="actions">
+        <button id="btnAddGroup" class="icon" data-icon="folderPlus" title="Nuevo grupo"></button>
+        <button id="btnAddBoneLayer" class="icon" data-icon="bone" title="Nueva capa de huesos"></button>
+        <button id="btnDupLayer" class="icon" data-icon="copy" title="Duplicar (⌘D)"></button>
+        <button id="btnUpLayer" class="icon" data-icon="arrowUp" title="Subir"></button>
+        <button id="btnDownLayer" class="icon" data-icon="arrowDown" title="Bajar"></button>
+        <button id="btnDelLayer" class="icon danger" data-icon="trash" title="Borrar capa"></button>
+      </span>
+    </div>
+    <ul id="layerTree"></ul>
+  </aside>
+
+  <section id="stage">
+    <canvas id="canvas"></canvas>
+
+    <div id="dropHint" class="welcome">
+      <img class="hero" src="assets/logo-256.png" alt="">
+      <h1>Crea, anima y edita <span class="grad">con IA</span></h1>
+      <p>Animación 2D con huesos, edición de video y vectores, todo en el navegador.</p>
+      <div class="cards">
+        <button class="card" data-act="new"><i data-icon="filePlus" data-size="26"></i><b>Proyecto nuevo</b><span>Horizontal o corto vertical</span></button>
+        <button class="card hot" data-act="ai"><i data-icon="sparkles" data-size="26"></i><b>Generar con IA</b><span>Vectores, animación y video</span></button>
+        <button class="card" data-act="research"><i data-icon="sliders" data-size="26"></i><b>Investigar tendencias</b><span>TikTok, Reels, Facebook, YouTube</span></button>
+        <button class="card" data-act="open"><i data-icon="folderOpen" data-size="26"></i><b>Abrir archivo</b><span>.moho, imágenes, video, SVG</span></button>
+        <button class="card" data-act="utm"><i data-icon="chart" data-size="26"></i><b>Medir resultados</b><span>Enlaces UTM por video</span></button>
+      </div>
+      <div class="samples"><span class="muted">Ejemplos:</span><div id="welcomeSamples"></div></div>
+      <p class="muted small">También puedes arrastrar archivos aquí. Tus archivos se quedan en tu equipo: nunca se suben al servidor.</p>
+    </div>
+
+    <div id="viewbar" class="glass">
+      <button id="btnTogLayers" class="icon narrowOnly" data-icon="layers" data-size="16" title="Capas"></button>
+      <button id="btnTogProps" class="icon narrowOnly" data-icon="sliders" data-size="16" title="Propiedades"></button>
+      <span class="vsep narrowOnly"></span>
+      <label class="chip" title="Mostrar huesos"><input type="checkbox" id="optBones" checked><span data-icon="bone" data-size="15">Huesos</span></label>
+      <label class="chip" title="Mostrar puntos de la capa seleccionada"><input type="checkbox" id="optPoints" checked><span data-icon="points" data-size="15">Puntos</span></label>
+      <label class="chip" title="Marcos de imágenes que faltan"><input type="checkbox" id="optImages" checked><span data-icon="frame" data-size="15">Marcos</span></label>
+      <label class="chip" title="Deformación flexi de los huesos"><input type="checkbox" id="optFlexi" checked><span data-icon="flexi" data-size="15">Flexi</span></label>
+      <label class="chip" title="Papel cebolla"><input type="checkbox" id="optOnion"><span data-icon="onion" data-size="15">Cebolla</span></label>
+      <span class="vsep"></span>
+      <button id="btnZoomOut" class="icon" data-icon="zoomOut" data-size="16" title="Alejar"></button>
+      <span id="zoomLabel">100%</span>
+      <button id="btnZoomIn" class="icon" data-icon="zoomIn" data-size="16" title="Acercar"></button>
+      <button id="btnZoomFit" class="icon" data-icon="fit" data-size="16" title="Encajar (0)"></button>
+    </div>
+    <div id="status"></div>
+  </section>
+
+  <aside id="propsPanel" class="glass">
+    <div class="panelHead"><span data-icon="sliders">Propiedades</span></div>
+    <div id="props"></div>
+    <div class="panelHead sub"><span data-icon="film">Documento</span></div>
+    <div id="docProps"></div>
+  </aside>
+</main>
+
+<footer id="timeline" class="glass">
+  <div class="transport">
+    <div class="timecode"><span id="frameInfo">00:00.00</span><span class="fr">Frame <input type="number" id="frameNum" min="0" value="0"></span></div>
+    <div class="playback">
+      <button id="btnStart" class="icon" data-icon="skipBack" title="Inicio"></button>
+      <button id="btnPrev" class="icon" data-icon="stepBack" title="Frame anterior (←)"></button>
+      <button id="btnPlay" class="play" title="Reproducir (Enter)"><i class="i-play" data-icon="play" data-size="20"></i><i class="i-pause" data-icon="pause" data-size="20"></i></button>
+      <button id="btnNext" class="icon" data-icon="stepFwd" title="Frame siguiente (→)"></button>
+      <button id="btnEnd" class="icon" data-icon="skipFwd" title="Fin"></button>
+      <label class="chip small" title="Repetir"><input type="checkbox" id="optLoop" checked><span data-icon="repeat" data-size="15"></span></label>
+    </div>
+    <div class="keyTools">
+      <span class="muted small" data-icon="diamond" data-size="13">Key</span>
+      <select id="interpSelect" title="Interpolación de los keys del frame actual"></select>
+      <button id="btnDelKey" class="ghost small" data-icon="trash" data-size="14" title="Borrar keyframes del frame actual">Borrar</button>
+      <button id="btnSplit" class="ghost small" data-icon="scissors" data-size="14" title="Cortar el clip en el cabezal (⌘B)">Cortar</button>
+    </div>
+  </div>
+  <div class="trackHead"><div class="labelCol">Pistas</div><div id="ruler"><canvas id="keysCanvas"></canvas><input type="range" id="frameSlider" min="0" value="0"></div></div>
+  <div id="tracks"><canvas id="tracksCanvas"></canvas></div>
+</footer>
+
+<div id="fmtModal" class="modal" hidden>
+  <div class="modalBox glass">
+    <h2>Nuevo proyecto</h2>
+    <p class="muted">Elige el formato. Puedes cambiarlo después desde la barra superior.</p>
+    <div class="fmtCards">
+      <button data-fmt="h"><span class="shape h"></span><b>Horizontal</b><span>16:9 · 1920×1080</span><small>YouTube, presentaciones</small></button>
+      <button data-fmt="v"><span class="shape v"></span><b>Corto vertical</b><span>9:16 · 1080×1920</span><small>TikTok, Reels, Shorts</small></button>
+      <button data-fmt="s"><span class="shape s"></span><b>Cuadrado</b><span>1:1 · 1080×1080</span><small>Feed de Instagram, Facebook</small></button>
+    </div>
+    <div class="modalActs"><label class="muted small"><input type="number" id="fmtFps" value="24" min="1" max="120"> fps</label><button id="fmtCancel" class="ghost">Cancelar</button></div>
+  </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
